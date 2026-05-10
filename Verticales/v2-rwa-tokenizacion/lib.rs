@@ -14,80 +14,73 @@ pub mod pallet {
     #[pallet::config]
     pub trait Config: frame_system::Config {
         type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-        /// Vínculo con el módulo de Identidad (IDS) para validar la Firma Electrónica Avanzada (FEA).
         type IdentityValidator: crate::traits::SovereignIdentityVerifier<Self::AccountId>;
     }
 
-    /// Estructura de un Activo del Mundo Real (RWA)
+    /// Clasificación Jurídica del Activo
+    #[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    pub enum AssetClass {
+        Movable,   // Bien Mueble (Ej: Vehículos, obras de arte, maquinaria)
+        Immovable, // Bien Inmueble (Ej: Casas, terrenos - Requiere inscripción CBR)
+    }
+
+    /// Estructura de un Activo del Mundo Real (RWA) con exigencia probatoria
     #[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct RealWorldAsset {
-        pub photo_hash: [u8; 32],        // Hash SHA-3 de la fotografía tomada en la App
-        pub fea_signature: [u8; 64],     // Firma Electrónica Avanzada del ciudadano
-        pub geolocation_hash: [u8; 32],  // Coordenadas cifradas
-        pub is_active: bool,
+        pub asset_class: AssetClass,
+        pub photo_hash: [u8; 32],
+        pub fea_signature_pqc: [u8; 64], // Firma Electrónica Avanzada Post-Cuántica
+        pub ownership_proof_hash: [u8; 32], // Hash del documento probatorio (Inscripción o Factura)
+        pub is_certified: bool, // Determina si pasó por el Sandbox de la Cámara
     }
 
     #[pallet::storage]
     #[pallet::getter(fn rwa_registry)]
-    pub type RwaRegistry<T: Config> = StorageMap<
-        _,
-        Blake2_128Concat,
-        [u8; 32], // ID del Token (Derivado del hash de la foto)
-        RealWorldAsset,
-        OptionQuery,
-    >;
-
-    #[pallet::storage]
-    #[pallet::getter(fn rwa_owner)]
-    pub type RwaOwner<T: Config> = StorageMap<_, Blake2_128Concat, [u8; 32], T::AccountId, OptionQuery>;
+    pub type RwaRegistry<T: Config> = StorageMap<_, Blake2_128Concat, [u8; 32], RealWorldAsset, OptionQuery>;
 
     #[pallet::event]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
-        AssetTokenized(T::AccountId, [u8; 32]), // Cuenta, Token ID
+        AssetPendingCertification([u8; 32], AssetClass), // El activo entra al Sandbox
+        AssetTokenized([u8; 32], T::AccountId), 
     }
 
     #[pallet::error]
     pub enum Error<T> {
-        AssetAlreadyExists,
+        MissingOwnershipProof,
         InvalidFeaSignature,
-        IdentityNotVerified,
     }
 
     #[pallet::call]
     impl<T: Config> Pallet<T> {
-        /// Emite un token RWA basado en una fotografía y validado por la FEA del usuario.
+        /// Solicita la tokenización inyectando las pruebas de propiedad correspondientes
         #[pallet::call_index(0)]
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(2))]
-        pub fn tokenize_photo_asset(
+        #[pallet::weight(10_000)]
+        pub fn request_tokenization(
             origin: OriginFor<T>,
+            asset_class: AssetClass,
             photo_hash: [u8; 32],
-            fea_signature: [u8; 64],
-            geolocation_hash: [u8; 32],
+            fea_signature_pqc: [u8; 64],
+            ownership_proof_hash: [u8; 32], // App exige PDF de CBR o Declaración jurada/factura
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
 
-            // 1. Validar a través del contrato horizontal de Identidad Soberana (IDS)
-            ensure!(
-                T::IdentityValidator::is_fea_valid(&who, &fea_signature),
-                Error::<T>::InvalidFeaSignature
-            );
+            // 1. Validar Identidad y FEA Post-Cuántica en la Horizontal
+            ensure!(T::IdentityValidator::is_fea_valid(&who, &fea_signature_pqc), Error::<T>::InvalidFeaSignature);
 
-            ensure!(!RwaRegistry::<T>::contains_key(&photo_hash), Error::<T>::AssetAlreadyExists);
+            // 2. Validar que se adjuntó prueba de propiedad
+            ensure!(ownership_proof_hash != [0u8; 32], Error::<T>::MissingOwnershipProof);
 
-            // 2. Crear el objeto RWA
             let asset = RealWorldAsset {
+                asset_class: asset_class.clone(),
                 photo_hash,
-                fea_signature,
-                geolocation_hash,
-                is_active: true,
+                fea_signature_pqc,
+                ownership_proof_hash,
+                is_certified: false, // Entra en estado de cuarentena/sandbox por defecto
             };
 
-            // 3. Registrar y emitir el Token
             RwaRegistry::<T>::insert(&photo_hash, asset);
-            RwaOwner::<T>::insert(&photo_hash, &who);
-
-            Self::deposit_event(Event::AssetTokenized(who, photo_hash));
+            Self::deposit_event(Event::AssetPendingCertification(photo_hash, asset_class));
 
             Ok(())
         }
