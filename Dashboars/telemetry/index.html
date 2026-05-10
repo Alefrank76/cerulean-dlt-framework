@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Cerulean DLT - Control Panel</title>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans">
+    <nav class="border-b border-slate-800 p-4 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tighter text-cyan-400">CERULEAN <span class="text-white">DLT</span></h1>
+            <div class="flex gap-6 text-sm uppercase tracking-widest font-semibold">
+                <span class="text-green-400"><i class="fa-solid fa-circle text-[10px] mr-2"></i> Red Activa</span>
+                <span class="text-cyan-400">PQC: Dilithium-V enabled</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <p class="text-slate-400 text-sm uppercase mb-2">Bloque Actual</p>
+                <h2 class="text-4xl font-mono font-bold text-white">#1,245,082</h2>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <p class="text-slate-400 text-sm uppercase mb-2">TPS (Transacciones)</p>
+                <h2 class="text-4xl font-mono font-bold text-cyan-400">4,500 <span class="text-lg">/s</span></h2>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <p class="text-slate-400 text-sm uppercase mb-2">Estado IA-Oracle</p>
+                <h2 class="text-4xl font-mono font-bold text-purple-400">Syncing</h2>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <p class="text-slate-400 text-sm uppercase mb-2">Nodos Chile</p>
+                <h2 class="text-4xl font-mono font-bold text-white">42</h2>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden mb-12">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
+                <h3 class="text-xl font-bold italic"><i class="fa-solid fa-vial-circle-check mr-3"></i>Sandbox Certificador - Cámara Blockchain Chile</h3>
+                <button class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2 rounded-full font-bold text-sm transition-all">NUEVA CERTIFICACIÓN</button>
+            </div>
+            <div class="p-0">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase">
+                        <tr>
+                            <th class="p-4">Producto / Activo</th>
+                            <th class="p-4">Origen</th>
+                            <th class="p-4">Estrés Técnico</th>
+                            <th class="p-4">Cumplimiento Legal (BCN)</th>
+                            <th class="p-4">Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        <tr>
+                            <td class="p-4 font-semibold">Tokenización Edificio Almagro</td>
+                            <td class="p-4 text-sm text-slate-400">Vertical RWA</td>
+                            <td class="p-4 text-green-400">98% Passed</td>
+                            <td class="p-4 text-green-400">ISO 20022 OK</td>
+                            <td class="p-4"><span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold">CERTIFICADO</span></td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-semibold">Smart Contract Retail-D</td>
+                            <td class="p-4 text-sm text-slate-400">Externo</td>
+                            <td class="p-4 text-yellow-400">75% Warning</td>
+                            <td class="p-4 text-red-400">GDPR Violations</td>
+                            <td class="p-4"><span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold">RECHAZADO</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
