@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+    "node",
+    "runtime",
+    "pallets/pallet-iso20022",
+    "pallets/pallet-iso27001",
+    "pallets/pallet-ai-oracle"
+]
+
+[workspace.dependencies]
+# Dependencias Core de Substrate (Polkadot SDK)
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master", default-features = false }
+
+# Integración Post-Cuántica (PQC) - Dilithium/Kyber wrappers
+pqcrypto-dilithium = { version = "0.2.0", default-features = false }
+pqcrypto-kyber = { version = "0.2.0", default-features = false }
